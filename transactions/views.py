@@ -1,19 +1,71 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.contrib.auth import logout
+from django.contrib.auth.models import AnonymousUser
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, parsers, renderers
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
 from .models import Company, Transaction
-from .serializers import CompanySerializer, TransactionSerializer
+from .serializers import CompanySerializer, TransactionSerializer, SystemUserLogInSerializer
 from django.shortcuts import render
 
 # Create your views here.
 
 
-class Companies(APIView):
+class ObtainAuthToken(APIView):
+    permission_classes = ()
+    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
+    renderer_classes = (renderers.JSONRenderer,)
+    serializer_class = AuthTokenSerializer
 
+    def post(self, request):
+        try:
+            request.data['username'] = request.data.get('username', '').lower()
+            serializer = self.serializer_class(data=request.data)
+            # Validate user and password
+            # serializer.is_valid(raise_exception=True)
+            if not serializer.is_valid():
+                return Response({'message': 'Credenciales incorrectas'}, status=status.HTTP_401_UNAUTHORIZED)
+            user = serializer.validated_data['user']
+
+            user_serializer = SystemUserLogInSerializer(user)
+
+            token, created = Token.objects.get_or_create(user=user)
+
+            if not created:
+                # update the created time of the token to keep it valid
+                token.created = datetime.utcnow()
+                token.save()
+
+            return Response({'token': token.key, 'user': user_serializer.data})
+        except ValidationError as ex:
+            return Response({'message': 'Error en ObtainAuthToken/post, serializer no valido: ' + str(ex)},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as ex:
+            if request.user.is_authenticated():
+                token, created = Token.objects.get_or_create(user=request.user)
+                if not created:
+                    # update the created time of the token to keep it valid
+                    token.delete()
+                logout(request)
+                request.session.flush()
+                request.user = AnonymousUser
+                return Response({'error': 'Error de autenticacion: {}'.format(str(ex))},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+obtain_auth_token = ObtainAuthToken.as_view()
+
+
+class Companies(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         """
         Get companies information. 'status' query param add this filter
@@ -35,7 +87,7 @@ companies = Companies.as_view()
 
 
 class CompanyTransactions(APIView):
-
+    permission_classes = [IsAuthenticated]
     def get(self, request, company_id):
         """
         Get all transactions associated to a given company
@@ -59,7 +111,7 @@ company_transactions = CompanyTransactions.as_view()
 
 
 class Resume(APIView):
-
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         """
         Get the resume of database information
@@ -91,7 +143,7 @@ resume = Resume.as_view()
 
 
 class Company(APIView):
-
+    permission_classes = [IsAuthenticated]
     def get(self, request, company_id):
         """
         Get company information

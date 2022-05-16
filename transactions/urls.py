@@ -21,6 +21,7 @@ from .views import *
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api-token-auth/', obtain_auth_token),
     url(r'^resume/', resume),
     url(r'^companies/', companies),
     url(r'^company/(?P<company_id>[0-9a-f-]+)', company),

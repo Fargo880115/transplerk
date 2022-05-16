@@ -143,3 +143,10 @@ class TransactionManager(models.Manager):
             return self.filter(company=company, final_payment=False).exclude(deleted=True).count()
         except Exception as ex:
             raise
+
+
+class SystemUserManager(models.Manager):
+    """
+    Manger for SystemUser
+    """
+    pass
