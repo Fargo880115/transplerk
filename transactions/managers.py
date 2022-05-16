@@ -123,3 +123,23 @@ class TransactionManager(models.Manager):
             return self.filter(company=company, final_payment=False).exclude(deleted=True).count() if company else 0
         except Exception as ex:
             raise
+
+    def total_transactions_approved(self, company):
+        """
+        Get total transaction approved for given company
+        :return:
+        """
+        try:
+            return self.filter(company=company, final_payment=True).exclude(deleted=True).count()
+        except Exception as ex:
+            raise
+
+    def total_transactions_not_approved(self, company):
+        """
+        Get total transaction not approved for given company
+        :return:
+        """
+        try:
+            return self.filter(company=company, final_payment=False).exclude(deleted=True).count()
+        except Exception as ex:
+            raise

@@ -22,4 +22,6 @@ from .views import *
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^resume/', resume),
+    url(r'^company/(?P<company_id>[0-9a-f-]+)', company)
+    # url(r'^company/(?P<pk>[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12})', company)
 ]
