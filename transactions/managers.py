@@ -39,28 +39,6 @@ class CompanyManager(models.Manager):
         except Exception as ex:
             raise
 
-    def sells_count(self, company):
-        """
-        Get company sells count
-        :return:
-        """
-        try:
-            from .models import Transaction
-            return Transaction.objects.transaction_count(company)
-        except Exception as ex:
-            raise
-
-    def rejected_sells_count(self, company):
-        """
-        Get company rejected sells count
-        :return:
-        """
-        try:
-            from .models import Transaction
-            return Transaction.objects.rejected_transaction_count(company)
-        except Exception as ex:
-            raise
-
 
 class TransactionManager(models.Manager):
 

@@ -68,18 +68,3 @@ class Transaction(models.Model):
         # This can be improved using django signals
         self.final_payment = True if self.status == 'closed' and self.approved else False
         super(Transaction, self).save(*args, **kwargs)
-
-
-# class SystemUser(AbstractUser):
-#     second_email = models.EmailField(null=True, blank=True)
-#     phone = models.CharField(max_length=50, null=True, blank=True)
-#     deleted = models.BooleanField(default=False)
-#
-#     objects = SystemUserManager()
-#
-#     def __unicode__(self):
-#         return self.username
-#
-#     class Meta:
-#         managed = True
-#         db_table = 'systemuser'

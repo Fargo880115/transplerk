@@ -8,7 +8,7 @@ from transactions.utils import random_date
 
 
 class Command(BaseCommand):
-    help = 'Import data to the database'
+    help = 'Import data to the database from csv file. Just run the command'
 
     def handle(self, *args, **options):
         try:
