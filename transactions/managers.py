@@ -1,10 +1,6 @@
 # -*- encoding: utf-8 -*-
-import datetime
-import traceback
-
 from django.db import models
-from django.db.models import Q, Sum, Max, Min, Count
-from .models import Company, Transaction
+from django.db.models import Sum, Count
 
 
 class CompanyManager(models.Manager):
@@ -15,7 +11,7 @@ class CompanyManager(models.Manager):
         """
         try:
             # companies = self.all().exclude(deleted=True)
-            # companies = self.filter(deleted=True)
+            companies = self.filter(deleted=True)
             # c = companies.annotate(total_sells=Count('transactions__final_payment'))
             more_sells_company = max([{'company': c, 'trans_count': self.sells_count(c)} for c in companies],
                                      key=lambda x: x['trans_count'])
@@ -55,6 +51,7 @@ class CompanyManager(models.Manager):
         :return:
         """
         try:
+            from .models import Transaction
             return Transaction.objects.transaction_count(company)
         except Exception as ex:
             raise
@@ -65,6 +62,7 @@ class CompanyManager(models.Manager):
         :return:
         """
         try:
+            from .models import Transaction
             return Transaction.objects.rejected_transaction_count(company)
         except Exception as ex:
             raise

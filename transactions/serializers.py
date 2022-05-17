@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
+from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Company, Transaction, SystemUser
+from .models import Company, Transaction
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -20,4 +21,5 @@ class TransactionSerializer(serializers.ModelSerializer):
 class SystemUserLogInSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = SystemUser
+        model = User
+        fields = ('username', 'email', 'id',)

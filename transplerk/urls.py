@@ -15,15 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from rest_framework import routers
 from transactions import urls as api_urls
 
-APIRouter = routers.DefaultRouter()
-APIRouter.register('transactions', TransactionViewset, 'transactions')
 
-
-
-# urlpatterns = [
-#     url(r'^admin/', admin.site.urls),
-#     url(r'^api/', include(api_urls)),
-# ]
+urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^api/', include(api_urls)),
+]

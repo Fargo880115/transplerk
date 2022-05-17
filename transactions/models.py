@@ -2,10 +2,9 @@
 from __future__ import unicode_literals
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from model_utils import Choices
 from django.utils.translation import ugettext_lazy as _
-from .managers import CompanyManager, TransactionManager, SystemUserManager
+from .managers import CompanyManager, TransactionManager
 # Create your models here.
 
 
@@ -71,16 +70,16 @@ class Transaction(models.Model):
         super(Transaction, self).save(*args, **kwargs)
 
 
-class SystemUser(AbstractUser):
-    second_email = models.EmailField(null=True, blank=True)
-    phone = models.CharField(max_length=50, null=True, blank=True)
-    deleted = models.BooleanField(default=False)
-
-    objects = SystemUserManager()
-
-    def __unicode__(self):
-        return self.username
-
-    class Meta:
-        managed = True
-        db_table = 'systemuser'
+# class SystemUser(AbstractUser):
+#     second_email = models.EmailField(null=True, blank=True)
+#     phone = models.CharField(max_length=50, null=True, blank=True)
+#     deleted = models.BooleanField(default=False)
+#
+#     objects = SystemUserManager()
+#
+#     def __unicode__(self):
+#         return self.username
+#
+#     class Meta:
+#         managed = True
+#         db_table = 'systemuser'
