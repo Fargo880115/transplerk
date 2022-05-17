@@ -1,12 +1,14 @@
 # -*- encoding: utf-8 -*-
 import traceback
+from datetime import datetime
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from transactions.models import Company, Transaction
+from transactions.utils import random_date
 
 
 class Command(BaseCommand):
-    help = 'Import data to the database'
+    help = 'Import data to the database from csv file. Just run the command'
 
     def handle(self, *args, **options):
         try:
@@ -20,49 +22,51 @@ class Command(BaseCommand):
         :return:
         """
         from decimal import Decimal
+        from csv import reader
         try:
             file_path = settings.DB_DATA_PATH
             with open(file_path) as f:
-                content = f.readlines()
-            header = content[:1]
-            rows = content[1:]
-            print(header)
-            print(rows)
-
-            for row in rows:
-                try:
-                    company = row[0]
-                    price = row[1]
-                    date = row[2]
-                    status_transaction = row[3]
-                    status_approved = row[4]
-
+                # pass the file object to reader() to get the reader object
+                csv_reader = reader(f)
+                # Iterate over each row in the csv using reader object
+                for row in csv_reader:
+                    # row variable is a list that represents a row in csv
                     try:
-                        db_company = Company.objects.get(name=company.strip())
-                    except Company.DoesNotExist:
-                        db_company = Company.objects.create(name=company.strip())
+                        company = row[0]
+                        price = row[1]
+                        str_date = row[2]
+                        status_transaction = row[3]
+                        status_approved = row[4]
 
-                    try:
-                        # fix the price
-                        str_price = price.strip()
-                        # fix the date
-                        # Pending format the date from the file
-                        # TODO: format date from the file
-                        # fix status for database
-                        boolean_transaction_status = True if status_transaction.strip() == 'true' else False
-                        # fix approved for database
-                        boolean_approved_status = True if status_approved.strip() == 'true' else False
+                        try:
+                            db_company = Company.objects.get(name=company.strip())
+                        except Company.DoesNotExist:
+                            if not company.strip():
+                                company = 'Unnamed'
+                            db_company = Company.objects.create(name=company.strip())
 
-                        Transaction.objects.get(company=db_company, price=Decimal(str_price),
-                                                status=boolean_transaction_status, approved=boolean_approved_status)
-                    except Transaction.DoesNotExist:
-                        t = Transaction(company=db_company, price=Decimal(str_price),
-                                        status=boolean_transaction_status, approved=boolean_approved_status)
-                        t.save()  # for ensure the execution of the function for complete final_payment
+                        try:
+                            # fix the price
+                            str_price = price.strip()
+                            # get date from file
+                            trans_date = datetime.strptime(str_date[:19], '%Y-%m-%d %H:%M:%S')
+                            # fix status for database
+                            transaction_status = status_transaction.strip()
+                            # fix approved for database
+                            boolean_approved_status = True if status_approved.strip() == 'true' else False
 
-                except Exception as ex:
-                    print str(ex)
-                    pass
+                            Transaction.objects.get(company=db_company, price=Decimal(str(str_price)),
+                                                    transaction_date=trans_date, status=transaction_status,
+                                                    approved=boolean_approved_status)
+                        except Transaction.DoesNotExist:
+                            t = Transaction(company=db_company, price=Decimal(str(str_price)),
+                                            transaction_date=trans_date,
+                                            status=transaction_status, approved=boolean_approved_status)
+                            t.save()  # for ensure the execution of the function for complete final_payment
+
+                    except Exception as ex:
+                        print str(ex)
+                        pass
 
         except Exception as ex:
             print str(ex)

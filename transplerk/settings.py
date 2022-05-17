@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
 # Set project base dir
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 
@@ -41,9 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
-    'transactions',
-    'corsheaders'
+    'rest_framework.authtoken',
+    'transactions'
 ]
 
 MIDDLEWARE = [
@@ -84,7 +85,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': 'localhost',
-        'NAME': 'transplerk_db',
+        'NAME': 'transplerk_database',
         'USER': 'goblin',
         'PASSWORD': 'goblinShaman.123'
     }
@@ -149,6 +150,23 @@ LOGGING = {
     },
 }
 
+REST_FRAMEWORK = {
+    'PAGINATE_BY': 25,
+    'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
+    'MAX_PAGINATE_BY': 50,            # Maximum limit allowed when using `?page_size=xxx`.
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.TokenAuthentication',
+        'transactions.authentication.ExpiringTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    )
+}
 
 import django
 django.setup()
