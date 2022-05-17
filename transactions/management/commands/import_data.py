@@ -22,55 +22,51 @@ class Command(BaseCommand):
         :return:
         """
         from decimal import Decimal
+        from csv import reader
         try:
-            start_date = datetime.strptime('1/1/2019 1:30 PM', '%m/%d/%Y %I:%M %p')
-            end_date = datetime.strptime('1/1/2021 4:50 AM', '%m/%d/%Y %I:%M %p')
-
             file_path = settings.DB_DATA_PATH
             with open(file_path) as f:
-                content = f.readlines()
-            header = content[:1]
-            rows = content[1:]
-            print(header)
-            print(rows)
-
-            for row in rows:
-                try:
-                    company = row[0]
-                    price = row[1]
-                    date = row[2]
-                    status_transaction = row[3]
-                    status_approved = row[4]
-
+                # pass the file object to reader() to get the reader object
+                csv_reader = reader(f)
+                # Iterate over each row in the csv using reader object
+                for row in csv_reader:
+                    # row variable is a list that represents a row in csv
                     try:
-                        db_company = Company.objects.get(name=company.strip())
-                    except Company.DoesNotExist:
-                        if not company.strip():
-                            company = 'Unnamed'
-                        db_company = Company.objects.create(name=company.strip())
+                        company = row[0]
+                        price = row[1]
+                        str_date = row[2]
+                        status_transaction = row[3]
+                        status_approved = row[4]
 
-                    try:
-                        # fix the price
-                        str_price = price.strip()
-                        # generate ramdom date
-                        generated_date = random_date(start_date, end_date)
-                        # fix status for database
-                        boolean_transaction_status = True if status_transaction.strip() == 'true' else False
-                        # fix approved for database
-                        boolean_approved_status = True if status_approved.strip() == 'true' else False
+                        try:
+                            db_company = Company.objects.get(name=company.strip())
+                        except Company.DoesNotExist:
+                            if not company.strip():
+                                company = 'Unnamed'
+                            db_company = Company.objects.create(name=company.strip())
 
-                        Transaction.objects.get(company=db_company, price=Decimal(str(str_price)),
-                                                transaction_date=generated_date, status=boolean_transaction_status,
-                                                approved=boolean_approved_status)
-                    except Transaction.DoesNotExist:
-                        t = Transaction(company=db_company, price=Decimal(str(str_price)),
-                                        transaction_date=generated_date,
-                                        status=boolean_transaction_status, approved=boolean_approved_status)
-                        t.save()  # for ensure the execution of the function for complete final_payment
+                        try:
+                            # fix the price
+                            str_price = price.strip()
+                            # get date from file
+                            trans_date = datetime.strptime(str_date[:19], '%Y-%m-%d %H:%M:%S')
+                            # fix status for database
+                            transaction_status = status_transaction.strip()
+                            # fix approved for database
+                            boolean_approved_status = True if status_approved.strip() == 'true' else False
 
-                except Exception as ex:
-                    print str(ex)
-                    pass
+                            Transaction.objects.get(company=db_company, price=Decimal(str(str_price)),
+                                                    transaction_date=trans_date, status=transaction_status,
+                                                    approved=boolean_approved_status)
+                        except Transaction.DoesNotExist:
+                            t = Transaction(company=db_company, price=Decimal(str(str_price)),
+                                            transaction_date=trans_date,
+                                            status=transaction_status, approved=boolean_approved_status)
+                            t.save()  # for ensure the execution of the function for complete final_payment
+
+                    except Exception as ex:
+                        print str(ex)
+                        pass
 
         except Exception as ex:
             print str(ex)

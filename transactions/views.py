@@ -27,7 +27,6 @@ class ObtainAuthToken(APIView):
 
     def post(self, request):
         try:
-            request.data['username'] = request.data.get('username', '').lower()
             serializer = self.serializer_class(data=request.data)
             # Validate user and password
             # serializer.is_valid(raise_exception=True)
@@ -66,6 +65,7 @@ obtain_auth_token = ObtainAuthToken.as_view()
 
 class Companies(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         """
         Get companies information. 'status' query param add this filter
@@ -88,6 +88,7 @@ companies = Companies.as_view()
 
 class CompanyTransactions(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, company_id):
         """
         Get all transactions associated to a given company
@@ -112,6 +113,7 @@ company_transactions = CompanyTransactions.as_view()
 
 class Resume(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         """
         Get the resume of database information
@@ -142,8 +144,9 @@ class Resume(APIView):
 resume = Resume.as_view()
 
 
-class Company(APIView):
+class CompanyResume(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request, company_id):
         """
         Get company information
@@ -175,5 +178,5 @@ class Company(APIView):
             return Response({'error': str(ex)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-company = Company.as_view()
+company_resume = CompanyResume.as_view()
 

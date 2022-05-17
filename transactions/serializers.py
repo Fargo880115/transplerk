@@ -8,7 +8,7 @@ class CompanySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Company
-        exclude = ('id',)
+        fields = ('name', 'status',)
 
 
 class TransactionSerializer(serializers.ModelSerializer):

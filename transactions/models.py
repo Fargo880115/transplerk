@@ -20,7 +20,7 @@ class Company(models.Model):
     # company name
     name = models.CharField(max_length=50)
     # company status
-    status = models.IntegerField(choices=STATUSES, default=STATUSES.active)
+    status = models.CharField(max_length=20, choices=STATUSES, default=STATUSES.active)
     # logically delete for keep the track on deleted companies
     deleted = models.BooleanField(default=False)
 

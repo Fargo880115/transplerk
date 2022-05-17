@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname((os.path.abspath(__file__)))
 # Set project base dir
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 
@@ -85,7 +85,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'HOST': 'localhost',
-        'NAME': 'transplerk_db',
+        'NAME': 'transplerk_database',
         'USER': 'goblin',
         'PASSWORD': 'goblinShaman.123'
     }
@@ -155,7 +155,6 @@ REST_FRAMEWORK = {
     'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
     'MAX_PAGINATE_BY': 50,            # Maximum limit allowed when using `?page_size=xxx`.
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'EXCEPTION_HANDLER': 'tone_insurance_WS.ws_exceptions.custom_exception_handler',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.TokenAuthentication',
         'transactions.authentication.ExpiringTokenAuthentication',
